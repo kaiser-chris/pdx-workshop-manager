@@ -1,8 +1,6 @@
 package main
 
 import (
-	"./steam"
-	"./util"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +8,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"bahmut.de/pdx-workshop-manager/steam"
+	"bahmut.de/pdx-workshop-manager/util"
 )
 
 var fAppId uint32 = 480

@@ -32,3 +32,4 @@ go.work
 
 # Application specific
 /sdk
+/dist
