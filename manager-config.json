@@ -1,0 +1,11 @@
+{
+	"game": 529340,
+	"mods": [
+		{
+			"id": 3590291308,
+			"directory": "D:\\Development\\projects\\victoria3\\gate\\mod",
+			"description": "D:\\Development\\projects\\victoria3\\gate\\documentation\\STEAM_PAGE.bbcode",
+			"change-note-directory": "D:\\Development\\projects\\victoria3\\gate\\documentation\\updates"
+		}
+	]
+}

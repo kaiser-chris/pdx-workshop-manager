@@ -6427,6 +6427,10 @@ extern swig_intgo _wrap_SteamInternal_SteamAPI_Init_steam_fb253aa6b5654893(swig_
 extern swig_intgo _wrap_sizeof_CreateItemResult_t_steam_fb253aa6b5654893(void);
 extern swig_intgo _wrap_sizeof_SubmitItemUpdateResult_t_steam_fb253aa6b5654893(void);
 #undef intgo
+typedef struct {
+    const char **m_ppStrings;
+    int m_nNumStrings;
+} SteamParamStringArray_t;
 */
 import "C"
 
@@ -20078,7 +20082,10 @@ func (p SwigcptrSteamParamStringArray_t) SwigIsSteamParamStringArray_t() {
 func (arg1 SwigcptrSteamParamStringArray_t) SetM_ppStrings(arg2 *string) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_SteamParamStringArray_t_m_ppStrings_set_steam_fb253aa6b5654893(C.uintptr_t(_swig_i_0), C.swig_voidp(_swig_i_1))
+	C._wrap_SteamParamStringArray_t_m_ppStrings_set_steam_fb253aa6b5654893(
+		C.uintptr_t(_swig_i_0),
+		C.swig_voidp(unsafe.Pointer(C.CString(*_swig_i_1))),
+	)
 }
 
 func (arg1 SwigcptrSteamParamStringArray_t) GetM_ppStrings() (_swig_ret *string) {
@@ -40889,6 +40896,7 @@ type ISteamUGC interface {
 	GetUserContentDescriptorPreferences(arg2 *EUGCContentDescriptorID, arg3 uint) (_swig_ret uint)
 	SetItemsDisabledLocally(arg2 *uint64, arg3 uint, arg4 bool) (_swig_ret bool)
 	SetSubscriptionsLoadOrder(arg2 *uint64, arg3 uint) (_swig_ret bool)
+	SetItemTagsExtension(arg2 uint64, arg3 *C.SteamParamStringArray_t) (_swig_ret bool)
 }
 
 const STEAMUGC_INTERFACE_VERSION string = "STEAMUGC_INTERFACE_VERSION021"
@@ -54271,4 +54279,40 @@ type SteamDatagramRelayAuthTicket interface {
 
 func (p SwigcptrSteamDatagramRelayAuthTicket) Swigcptr() uintptr {
 	return uintptr(p)
+}
+
+func NewSteamParamStringArray(tags []string) *C.SteamParamStringArray_t {
+	count := len(tags)
+	if count == 0 {
+		return nil
+	}
+
+	// Allocate C array for string pointers
+	cArray := C.malloc(C.size_t(count) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	cStrings := (*[1 << 30]*C.char)(cArray)[:count:count]
+
+	// Convert Go strings → C strings
+	for i, s := range tags {
+		cStrings[i] = C.CString(s)
+	}
+
+	// Create the struct instance
+	arr := (*C.SteamParamStringArray_t)(C.malloc(C.size_t(unsafe.Sizeof(C.SteamParamStringArray_t{}))))
+	arr.m_ppStrings = (**C.char)(cArray)
+	arr.m_nNumStrings = C.int(count)
+
+	return arr
+}
+
+func (arg1 SwigcptrISteamUGC) SetItemTagsExtension(arg2 uint64, arg3 *C.SteamParamStringArray_t) (_swig_ret bool) {
+	var swig_r bool
+	_swig_i_0 := arg1
+	_swig_i_1 := arg2
+	_swig_i_2 := unsafe.Pointer(arg3)
+	swig_r = (bool)(C._wrap_ISteamUGC_SetItemTags__SWIG_1_steam_fb253aa6b5654893(
+		C.uintptr_t(_swig_i_0),
+		C.swig_type_706(_swig_i_1),
+		C.uintptr_t(uintptr(_swig_i_2)), // cast pointer to uintptr_t expected by C wrapper
+	))
+	return swig_r
 }
