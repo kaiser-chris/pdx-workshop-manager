@@ -18,9 +18,8 @@ export CGO_ENABLED = 1
 # Not running in a docker container
 export  ALLOW_OUTSIDE_DOCKER = 1
 
-
 .PHONY: all
-all: linux windows
+all: clean linux windows
 
 .PHONY: clean
 clean:
@@ -37,6 +36,8 @@ dist/linux-amd64/pdx-workshop-manager: $(SOURCES)
 	@echo CC="$(CC)" CXX="$(CXX)" GOOS="$(GOOS)" GOARCH="$(GOARCH)"
 	go build $(LINUXGNU_GOFLAGS) -o $@ $(MAIN_PACKAGE_PATH)
 	cp sdk/redistributable_bin/linux64/libsteam_api.so dist/linux-amd64/
+	cp example-linux-manager-config.json dist/linux-amd64/manager-config.json
+	(cd dist/linux-amd64; zip -r release-linux-amd64.zip .)
 
 .PHONY: windows
 windows: dist/windows-amd64/pdx-workshop-manager.exe
@@ -49,3 +50,5 @@ dist/windows-amd64/pdx-workshop-manager.exe: $(SOURCES)
 	@echo CC="$(CC)" CXX="$(CXX)" GOOS="$(GOOS)" GOARCH="$(GOARCH)"
 	go build $(WINDOWS_GOFLAGS) -o $@ $(MAIN_PACKAGE_PATH)
 	cp sdk/redistributable_bin/win64/steam_api64.dll dist/windows-amd64/
+	cp example-windows-manager-config.json dist/windows-amd64/manager-config.json
+	(cd dist/windows-amd64; zip -r release-windows-amd64.zip .)

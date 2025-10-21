@@ -1,0 +1,11 @@
+{
+	"game": 529340,
+	"mods": [
+		{
+			"id": 0,
+			"directory": "/Path/To/Mod",
+			"description": "/Path/To/Bbcode/File/STEAM_PAGE.bbcode",
+			"change-note-directory": "/Path/To/Change/Note/Directory"
+		}
+	]
+}
