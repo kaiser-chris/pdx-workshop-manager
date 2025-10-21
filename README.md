@@ -3,6 +3,8 @@
 **pdx-workshop-manager** is a tool to publish paradox mods (only Victoria 3 for now),
 to the steam workshop in repeatable and configurable way.
 
+There are both **Windows** and **Linux** builds. If requested a **MacOSX** build can be added.
+
 **Thanks to [nnnn20430](https://github.com/nnnn20430) for creating a go based wrapper of the original steamworks API.**
 
 ![Title Icon](github_icon_readme.jpg)
@@ -40,10 +42,10 @@ The tool is configured using a json file.
 
 - **REQUIRED** `game` steam app id of the game to upload for
 - **REQUIRED** `mods`a list of mods that can be uploaded
-- **REQUIRED** `id` id of the mod to upload, if kept `0` it will create the mod on the first upload and replace the id with the one
+- **REQUIRED** `id` id of the mod to upload, if kept `0` it will create the mod on the first upload and replace the id with the newly created one
 - **REQUIRED** `directory` location of the mod, either a relative path from the executable or an absolute path
 - **OPTIONAL** `description` file containing the steam description bbcode
-- **OPTIONAL** `change-note-directory` directory containing files with version based change notes (see )
+- **OPTIONAL** `change-note-directory` directory containing files with version based change notes (see [change notes](#adding-workshop-change-notes))
 
 ### Example JSON config
 
@@ -69,7 +71,7 @@ It does this by reading the `version` attribute from the `metadata.json` and add
 
 So if a mod has the version `1.0.1` it will try to find a file called `1.0.1.bbcode` in the change note directory.
 
-> **NOTE** The upload will **not** fail if there is no corresponding change not,
+> **NOTE** The upload will **not** fail if there is no corresponding change note,
 > but just warn about it in the console output.
 
 ## Usage
@@ -83,13 +85,17 @@ First download the latest release from the Releases page of the repository:
 >
 > If you do not trust this, then you can [build](#how-to-build) it yourself.
 
-Then, after configuration it, you can run the application like this:
+Then, after configuration it, you can run the application by double-clicking,
+or running it in the terminal like this:
 
 ```
-.\pdx-workshop-manager.exe"
+.\pdx-workshop-manager.exe
 ```
 
-> **NOTE** You need to have steam running and be logged in for the tool to work.
+By default, the application expects the config file to be in the same folder as the executable
+and will upload **all** mods configured in it. 
+
+> **NOTE** You need to have steam running and be logged in for the tool to work!
 
 All optional commands can be found in the help dialog. Help dialog (`.\pdx-workshop-manager.exe -h`):
 
