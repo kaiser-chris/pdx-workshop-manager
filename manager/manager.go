@@ -1,9 +1,11 @@
 package manager
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -72,8 +74,20 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 		}
 	}(metadataFile)
 
+	metadataReader := bufio.NewReader(metadataFile)
+	bom, _, err := metadataReader.ReadRune()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if bom != '\uFEFF' {
+		err := metadataReader.UnreadRune() // Not a BOM -- put the rune back
+		if err != nil {
+			return nil, fmt.Errorf("failed to check metadata file bom: %w", err)
+		}
+	}
+
 	// Decode metadata json
-	decoder := json.NewDecoder(metadataFile)
+	decoder := json.NewDecoder(metadataReader)
 	var metadata ModMetadata
 	err = decoder.Decode(&metadata)
 	if err != nil {
@@ -82,6 +96,9 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 
 	uploadData.Metadata = &metadata
 	uploadData.Thumbnail = filepath.Join(config.Directory, "thumbnail.png")
+	if _, err := os.Stat(uploadData.Thumbnail); errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("failed to find steam thumbnail.png in the mod root: %s", uploadData.Thumbnail)
+	}
 
 	if config.Description != "" {
 		content, err := os.ReadFile(config.Description)

@@ -33,3 +33,4 @@ go.work
 # Application specific
 /sdk
 /dist
+/manager-config.json
