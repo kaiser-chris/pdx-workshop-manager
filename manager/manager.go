@@ -129,8 +129,7 @@ func createMod(game uint) (uint64, error) {
 	)
 
 	result := steam.NewCreateItemResult_t()
-
-	for true {
+	for {
 		if steam.SteamUtils().IsAPICallCompleted(apiCall, &steamError) {
 			steam.SteamUtils().GetAPICallResult(
 				apiCall,
@@ -144,16 +143,16 @@ func createMod(game uint) (uint64, error) {
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	if steamError {
-		return 0, fmt.Errorf("steam API call failed: %s", steam.SteamUtils().GetAPICallFailureReason(apiCall))
-	}
-
-	if result.GetM_eResult() != 1 {
-		return 0, fmt.Errorf("item creation failed: %v", result.GetM_eResult())
-	}
-
 	if result.GetM_bUserNeedsToAcceptWorkshopLegalAgreement() {
-		return 0, errors.New("to make your item public you need to agree to the workshop terms of service <http://steamcommunity.com/sharedfiles/workshoplegalagreement>")
+		return 0, errors.New("to make your item public you need to agree to the workshop terms of service <https://steamcommunity.com/sharedfiles/workshoplegalagreement>")
+	}
+
+	if result.GetM_eResult() != steam.K_EResultOK {
+		return 0, fmt.Errorf("steam API call failed: %s", steam.ResultDescription[result.GetM_eResult()])
+	}
+
+	if steamError {
+		return 0, fmt.Errorf("steam API call failed: %v", steam.SteamUtils().GetAPICallFailureReason(apiCall))
 	}
 
 	return result.GetM_nPublishedFileId(), nil
@@ -187,14 +186,13 @@ func uploadModData(data *ModUploadData) error {
 		steam.SteamUGC().SetItemDescription(handle, data.Description)
 	}
 
-	updateResult := steam.NewSubmitItemUpdateResult_t()
-
+	result := steam.NewSubmitItemUpdateResult_t()
 	apiCall := steam.SteamUGC().SubmitItemUpdate(handle, data.ChangeNote)
 	for {
 		if steam.SteamUtils().IsAPICallCompleted(apiCall, &steamError) {
 			steam.SteamUtils().GetAPICallResult(
 				apiCall,
-				updateResult.Swigcptr(),
+				result.Swigcptr(),
 				steam.Sizeof_SubmitItemUpdateResult_t,
 				steam.SubmitItemUpdateResult_tK_iCallback,
 				&steamError,
@@ -204,12 +202,12 @@ func uploadModData(data *ModUploadData) error {
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	if updateResult.GetM_eResult() != steam.K_EResultOK {
-		return fmt.Errorf("steam API call failed: %v", updateResult.GetM_eResult())
+	if result.GetM_eResult() != steam.K_EResultOK {
+		return fmt.Errorf("steam API call failed: %s", steam.ResultDescription[result.GetM_eResult()])
 	}
 
 	if steamError {
-		return fmt.Errorf("steam API call failed: %s", steam.SteamUtils().GetAPICallFailureReason(apiCall))
+		return fmt.Errorf("steam API call failed: %v", steam.SteamUtils().GetAPICallFailureReason(apiCall))
 	}
 
 	return nil
