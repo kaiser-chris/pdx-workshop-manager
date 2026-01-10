@@ -30,7 +30,7 @@ ZIG_DIR="${ZIG_DIR:-${HOME}/.zig}"
 
 if [ ! -x "${ZIG_DIR}/zig" ]; then
     # https://github.com/ziglang/zig/issues/20243
-    ZIG_VERSION="${ZIG_VERSION:-0.16.0-dev.747+493ad58ff}"
+    ZIG_VERSION="${ZIG_VERSION:-0.15.2}"
 
     ARCH=$(uname -m)
     # is development version (contains 'dev')?
@@ -43,7 +43,7 @@ if [ ! -x "${ZIG_DIR}/zig" ]; then
 
     # Check if xz is available.
     SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-    ${SCRIPT_DIR}/../check-xz.sh
+    ${SCRIPT_DIR}/check-xz.sh
 
     echo "Downloading Zig from ${ZIG_DOWNLOAD_URL}..." >&2
     curl -sSL -o "${DOWNLOAD_FILE}" "${ZIG_DOWNLOAD_URL}"
