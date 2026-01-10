@@ -1,9 +1,10 @@
 SOURCES := $(shell find . -name '*.go')
+GOPATH := $(shell go env GOPATH)
 MAIN_PACKAGE_PATH := .
 
 ZIG := $(CURDIR)/scripts/zig.sh
-ZIG_CC := $(ZIG) cc -w
-ZIG_CXX := $(ZIG) c++ -w
+ZIG_CC := $(ZIG) cc -w -I/usr/include -L/usr/lib -L/usr/lib/x86_64-linux-gnu
+ZIG_CXX := $(ZIG) c++ -w -L/usr/lib -L/usr/lib/x86_64-linux-gnu
 
 LINUXGNU_GOFLAGS := --ldflags '-linkmode external -w' $(COMMON_GOFLAGS)
 LINUXGNU_GLIBC_VERSION := 2.17
@@ -16,10 +17,17 @@ WINDOWS_GOFLAGS := $(COMMON_GOFLAGS)
 export CGO_ENABLED = 1
 
 # Not running in a docker container
-export  ALLOW_OUTSIDE_DOCKER = 1
+export ALLOW_OUTSIDE_DOCKER = 1
+
+PATH  := $(PATH):$(shell go env GOPATH)/bin
 
 .PHONY: all
-all: clean linux windows
+all: clean setup linux windowsbrew install wgpu-native
+
+.PHONY: setup
+setup:
+	go install cogentcore.org/core@main
+	core setup
 
 .PHONY: clean
 clean:
