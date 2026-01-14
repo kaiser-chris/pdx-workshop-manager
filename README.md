@@ -85,6 +85,13 @@ First download the latest release from the Releases page of the repository:
 >
 > If you do not trust this, then you can [build](#how-to-build) it yourself.
 
+### Graphical UI
+
+Download the GUI version and after unzipping it simply run the provided executable.
+It will allow you to set up mods to be uploaded and do the upload.
+
+### Command Line
+
 Then, after configuration it, you can run the application by double-clicking,
 or running it in the terminal like this:
 
