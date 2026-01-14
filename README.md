@@ -120,8 +120,32 @@ Next, download the steamworks SDK:
 
 - https://partner.steamgames.com/doc/sdk
 
-Unzip and place the steamworks SDK into the project folder.
+Unzip and place the steamworks SDK into the project folder (the `sdk` folder should be in the project root).
 
-Finally, run `make all` in the project folder.
+Finally, you can run `go build` to create the command line tool version.
 
-You can find the generated executables in the `dist` folder.
+### Build GUI version
+Install the cogent core:
+```
+go install cogentcore.org/core@main
+```
+
+And run the cogent setup:
+```
+core setup
+```
+
+More details can be found on the cogent website:
+
+- https://www.cogentcore.org/core/install
+
+### Makefile
+Alternatively, there is a Makefile in the project to build both command line and GUI versions.
+
+The Makefile assumes the following:
+- It is running in **wsl**
+- The Go SDK is installed and set up in wsl as well as the host Windows
+- cogent has been set up in wsl as well as the host Windows
+- The steamworks SDK is in the project folder
+
+The resulting release versions can be found in the `dist` folder.

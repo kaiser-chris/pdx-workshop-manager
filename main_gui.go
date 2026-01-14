@@ -1,4 +1,4 @@
-//go:build !gui
+//go:build gui
 
 package main
 
@@ -7,6 +7,7 @@ import (
 
 	"bahmut.de/pdx-workshop-manager/cmd"
 	"bahmut.de/pdx-workshop-manager/config"
+	"bahmut.de/pdx-workshop-manager/gui"
 	"bahmut.de/pdx-workshop-manager/logging"
 )
 
@@ -22,11 +23,17 @@ func parseArgs() int {
 }
 
 func main() {
-	parseArgs()
-	err := cmd.Run(configFile, modId)
-	if err != nil {
-		logging.Errorf("Error: %v", err)
+	if parseArgs() == 0 {
+		err := gui.Run()
+		if err != nil {
+			logging.Errorf("Critical Error: %v", err)
+		}
 	} else {
-		logging.Infof("Upload successful")
+		err := cmd.Run(configFile, modId)
+		if err != nil {
+			logging.Errorf("Error: %v", err)
+		} else {
+			logging.Infof("Upload successful")
+		}
 	}
 }

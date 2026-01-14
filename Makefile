@@ -1,10 +1,9 @@
 SOURCES := $(shell find . -name '*.go')
-GOPATH := $(shell go env GOPATH)
 MAIN_PACKAGE_PATH := .
 
 ZIG := $(CURDIR)/scripts/zig.sh
-ZIG_CC := $(ZIG) cc -w -I/usr/include -L/usr/lib -L/usr/lib/x86_64-linux-gnu
-ZIG_CXX := $(ZIG) c++ -w -L/usr/lib -L/usr/lib/x86_64-linux-gnu
+ZIG_CC := $(ZIG) cc -w -lc
+ZIG_CXX := $(ZIG) c++ -w -lc
 
 LINUXGNU_GOFLAGS := --ldflags '-linkmode external -w' $(COMMON_GOFLAGS)
 LINUXGNU_GLIBC_VERSION := 2.17
@@ -19,15 +18,13 @@ export CGO_ENABLED = 1
 # Not running in a docker container
 export ALLOW_OUTSIDE_DOCKER = 1
 
-PATH  := $(PATH):$(shell go env GOPATH)/bin
-
 .PHONY: all
-all: clean setup linux windowsbrew install wgpu-native
+all: validate-sdk clean linux linux-gui windows windows-gui
 
-.PHONY: setup
-setup:
-	go install cogentcore.org/core@main
-	core setup
+.PHONY: validate-sdk
+validate-sdk:
+	ls sdk/redistributable_bin/linux64/libsteam_api.so
+	ls sdk/redistributable_bin/win64/steam_api64.dll
 
 .PHONY: clean
 clean:
@@ -47,6 +44,15 @@ dist/linux-amd64/pdx-workshop-manager: $(SOURCES)
 	cp example-linux-manager-config.json dist/linux-amd64/manager-config.json
 	(cd dist/linux-amd64; zip -r release-linux-amd64.zip .)
 
+.PHONY: linux-gui
+linux-gui: dist/linux-gui-amd64/pdx-workshop-manager
+
+dist/linux-gui-amd64/pdx-workshop-manager: $(SOURCES)
+	go build -tags gui -o $@ $(MAIN_PACKAGE_PATH)
+	cp sdk/redistributable_bin/linux64/libsteam_api.so dist/linux-gui-amd64/
+	cp example-linux-manager-config.json dist/linux-gui-amd64/manager-config.json
+	(cd dist/linux-gui-amd64; zip -r release-linux-gui-amd64.zip .)
+
 .PHONY: windows
 windows: dist/windows-amd64/pdx-workshop-manager.exe
 
@@ -60,3 +66,12 @@ dist/windows-amd64/pdx-workshop-manager.exe: $(SOURCES)
 	cp sdk/redistributable_bin/win64/steam_api64.dll dist/windows-amd64/
 	cp example-windows-manager-config.json dist/windows-amd64/manager-config.json
 	(cd dist/windows-amd64; zip -r release-windows-amd64.zip .)
+
+.PHONY: windows-gui
+windows-gui: dist/windows-gui-amd64/pdx-workshop-manager.exe
+
+dist/windows-gui-amd64/pdx-workshop-manager.exe: $(SOURCES)
+	go.exe build -tags gui -o $@ $(MAIN_PACKAGE_PATH)
+	cp sdk/redistributable_bin/win64/steam_api64.dll dist/windows-gui-amd64/
+	cp example-windows-manager-config.json dist/windows-gui-amd64/manager-config.json
+	(cd dist/windows-gui-amd64; zip -r release-windows-gui-amd64.zip .)
