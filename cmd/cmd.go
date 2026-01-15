@@ -1,11 +1,7 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strconv"
 
 	"bahmut.de/pdx-workshop-manager/config"
 	"bahmut.de/pdx-workshop-manager/logging"
@@ -23,27 +19,12 @@ func Run(configFile string, modId uint64) error {
 		return err
 	}
 
-	logging.Info("Creating steam_appid.txt")
-	executablePath, err := os.Executable()
-	if err != nil {
-		logging.Errorf("Could not get executable path: %v", err)
-		return err
-	}
-	if os.WriteFile(
-		filepath.Join(filepath.Dir(executablePath), "steam_appid.txt"),
-		[]byte(strconv.FormatUint(uint64(applicationConfig.Game), 10)),
-		0644,
-	) != nil {
-		logging.Errorf("Failed to write to steam_appid.txt: %v", err)
-		return err
-	}
-
-	logging.Info("Initializing Steam")
-	if !steam.SteamAPI_Init() {
-		logging.Error("Failed to initialize steam api")
-		return errors.New("failed to initialize steam api")
-	}
+	err = manager.Init(applicationConfig)
 	defer steam.SteamAPI_Shutdown()
+	if err != nil {
+		logging.Errorf("Failed to initialize steam: %v", err)
+		return err
+	}
 
 	if modId > AllMods {
 		logging.Infof("Start uploading mod %d", modId)
