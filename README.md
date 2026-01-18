@@ -90,6 +90,8 @@ First download the latest release from the Releases page of the repository:
 Download the GUI version and after unzipping it simply run the provided executable.
 It will allow you to set up mods to be uploaded and do the upload.
 
+![GUI Screenshot](gui-screenshot.png)
+
 ### Command Line
 
 Then, after configuration it, you can run the application by double-clicking,
