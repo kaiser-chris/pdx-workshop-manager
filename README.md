@@ -116,9 +116,6 @@ Usage of pdx-workshop-manager:
 
 ## How To Build
 
-> **NOTE** This guide is for linux (or wsl) specifically,
-> but it creates executables for both windows and linux through cross compilation.
-
 First download and install the Go SDK:
 
 - https://go.dev/doc/install
@@ -130,29 +127,9 @@ Next, download the steamworks SDK:
 Unzip and place the steamworks SDK into the project folder (the `sdk` folder should be in the project root).
 
 Finally, you can run `go build` to create the command line tool version.
-
-### Build GUI version
-Install the cogent core:
-```
-go install cogentcore.org/core@main
-```
-
-And run the cogent setup:
-```
-core setup
-```
-
-More details can be found on the cogent website:
-
-- https://www.cogentcore.org/core/install
+Or, you can run `go build -tags gui` to create the gui version.
 
 ### Makefile
-Alternatively, there is a Makefile in the project to build both command line and GUI versions.
-
-The Makefile assumes the following:
-- It is running in **wsl**
-- The Go SDK is installed and set up in wsl as well as the host Windows
-- cogent has been set up in wsl as well as the host Windows
-- The steamworks SDK is in the project folder
+Alternatively, there is a Makefile in the project to build both command line and GUI versions. For both Windows and Linux.
 
 The resulting release versions can be found in the `dist` folder.
