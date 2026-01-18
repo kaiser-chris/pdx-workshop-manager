@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"bahmut.de/pdx-workshop-manager/config"
@@ -28,6 +29,25 @@ type ModMetadata struct {
 	Name    string   `json:"name"`
 	Version string   `json:"version"`
 	Tags    []string `json:"tags"`
+}
+
+func Init(appConfig *config.ApplicationConfig) error {
+	executablePath, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	if os.WriteFile(
+		filepath.Join(filepath.Dir(executablePath), "steam_appid.txt"),
+		[]byte(strconv.FormatUint(uint64(appConfig.Game), 10)),
+		0644,
+	) != nil {
+		return err
+	}
+
+	if !steam.SteamAPI_Init() {
+		return errors.New("failed to initialize steam api")
+	}
+	return nil
 }
 
 func UploadMod(appConfig *config.ApplicationConfig, modConfig *config.ModConfig) error {

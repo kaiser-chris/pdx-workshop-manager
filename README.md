@@ -85,6 +85,13 @@ First download the latest release from the Releases page of the repository:
 >
 > If you do not trust this, then you can [build](#how-to-build) it yourself.
 
+### Graphical UI
+
+Download the GUI version and after unzipping it simply run the provided executable.
+It will allow you to set up mods to be uploaded and do the upload.
+
+### Command Line
+
 Then, after configuration it, you can run the application by double-clicking,
 or running it in the terminal like this:
 
@@ -109,9 +116,6 @@ Usage of pdx-workshop-manager:
 
 ## How To Build
 
-> **NOTE** This guide is for linux (or wsl) specifically,
-> but it creates executables for both windows and linux through cross compilation.
-
 First download and install the Go SDK:
 
 - https://go.dev/doc/install
@@ -120,8 +124,12 @@ Next, download the steamworks SDK:
 
 - https://partner.steamgames.com/doc/sdk
 
-Unzip and place the steamworks SDK into the project folder.
+Unzip and place the steamworks SDK into the project folder (the `sdk` folder should be in the project root).
 
-Finally, run `make all` in the project folder.
+Finally, you can run `go build` to create the command line tool version.
+Or, you can run `go build -tags gui` to create the gui version.
 
-You can find the generated executables in the `dist` folder.
+### Makefile
+Alternatively, there is a Makefile in the project to build both command line and GUI versions. For both Windows and Linux.
+
+The resulting release versions can be found in the `dist` folder.
