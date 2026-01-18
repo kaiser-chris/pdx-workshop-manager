@@ -44,9 +44,7 @@ func Init(appConfig *config.ApplicationConfig) error {
 		return err
 	}
 
-	logging.Info("Initializing Steam")
 	if !steam.SteamAPI_Init() {
-		logging.Error("Failed to initialize steam api")
 		return errors.New("failed to initialize steam api")
 	}
 	return nil

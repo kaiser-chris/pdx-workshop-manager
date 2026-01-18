@@ -19,6 +19,7 @@ func Run(configFile string, modId uint64) error {
 		return err
 	}
 
+	logging.Info("Initializing Steam")
 	err = manager.Init(applicationConfig)
 	defer steam.SteamAPI_Shutdown()
 	if err != nil {

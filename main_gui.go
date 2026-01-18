@@ -7,8 +7,8 @@ import (
 
 	"bahmut.de/pdx-workshop-manager/cmd"
 	"bahmut.de/pdx-workshop-manager/config"
-	"bahmut.de/pdx-workshop-manager/gui"
 	"bahmut.de/pdx-workshop-manager/logging"
+	"bahmut.de/pdx-workshop-manager/web"
 )
 
 var modId uint64 = 0
@@ -24,10 +24,7 @@ func parseArgs() int {
 
 func main() {
 	if parseArgs() == 0 {
-		err := gui.Run()
-		if err != nil {
-			logging.Errorf("Critical Error: %v", err)
-		}
+		web.Run()
 	} else {
 		err := cmd.Run(configFile, modId)
 		if err != nil {

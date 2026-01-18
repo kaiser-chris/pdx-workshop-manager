@@ -1,10 +1,23 @@
 package logging
 
+import "fmt"
+
+func AnsiLink(link, name string) string {
+	return fmt.Sprintf("%s%s%s%s%s", AnsiLinkStart, link, AnsiLinkSplit, name, AnsiLinkEnd)
+}
+
 // Defaults
 const (
 	AnsiAllDefault = "\x1b[0m"
 	AnsiFgDefault  = "\x1b[39m"
 	AnsiBgDefault  = "\x1b[49m"
+)
+
+// Links
+const (
+	AnsiLinkStart = "\x1B]8;;"
+	AnsiLinkEnd   = "\x1B]8;;\x1B\\"
+	AnsiLinkSplit = "\x1B\\"
 )
 
 // Effects
