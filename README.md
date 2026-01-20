@@ -1,6 +1,6 @@
 # Overview
 
-**pdx-workshop-manager** is a tool to publish paradox mods (only Victoria 3 for now),
+**pdx-workshop-manager** is a tool to publish paradox mods,
 to the steam workshop in repeatable and configurable way.
 
 There are both **Windows** and **Linux** builds. If requested a **MacOSX** build can be added.
@@ -11,6 +11,7 @@ There are both **Windows** and **Linux** builds. If requested a **MacOSX** build
 
 ## Contents
 
+* [Supported Games](#supported-games)
 * [How does it work?](#how-does-it-work)
 * [Configuration](#configuration)
     * [Attributes](#attributes)
@@ -21,6 +22,10 @@ There are both **Windows** and **Linux** builds. If requested a **MacOSX** build
 ## Status
 
 [![GitHub Release](https://img.shields.io/github/v/release/kaiser-chris/pdx-workshop-manager?display_name=release&label=Current%20Version&color=blue)](https://github.com/kaiser-chris/pdx-workshop-manager/releases)
+
+## Supported Games
+- [Victoria 3](https://store.steampowered.com/app/529340/Victoria_3/)
+- [Europa Universalis V](https://store.steampowered.com/app/3450310/Europa_Universalis_V/)
 
 ## How does it work?
 
@@ -88,9 +93,14 @@ First download the latest release from the Releases page of the repository:
 ### Graphical UI
 
 Download the GUI version and after unzipping it simply run the provided executable.
+
+The application will open a new browser window with the GUI.
+
 It will allow you to set up mods to be uploaded and do the upload.
 
 ![GUI Screenshot](gui-screenshot.png)
+
+> **NOTE** If no browser window opens, you can find a link to the GUI in the command line window.
 
 ### Command Line
 

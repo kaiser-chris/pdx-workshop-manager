@@ -89,6 +89,7 @@ func Run() {
 
 	http.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(static.Embed))))
 	http.HandleFunc("GET /", main)
+	http.HandleFunc("GET /guide", guide)
 	http.HandleFunc("GET /game/{identifier}", changeGame)
 	http.HandleFunc("GET /mod/add", addMod)
 	http.HandleFunc("POST /mod/update/{index}", updateMod)
@@ -136,6 +137,14 @@ func main(writer http.ResponseWriter, _ *http.Request) {
 		}
 	}
 	page := template.Must(template.ParseFS(templates, "resource/template/main.html"))
+	err := page.Execute(writer, window)
+	if err != nil {
+		logging.Fatalf("Could not execute template: %v", err)
+	}
+}
+
+func guide(writer http.ResponseWriter, _ *http.Request) {
+	page := template.Must(template.ParseFS(templates, "resource/template/guide.html"))
 	err := page.Execute(writer, window)
 	if err != nil {
 		logging.Fatalf("Could not execute template: %v", err)

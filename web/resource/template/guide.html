@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companion AI</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">PDX Workshop Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/guide">Guide</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="mod/add">Add Mod</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ .Game.Name }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {{ range $index, $game := .Games }}
+                                {{if eq $game.Identifier $.Game.Identifier }}
+                                    {{ continue }}
+                                {{end}}
+                                <li><a class="dropdown-item" href="game/{{ $game.Identifier }}">{{ $game.Name }}</a></li>
+                            {{ end }}
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mx-4 mt-4">
+        <h2 id="how-does-it-work-">How does it work?</h2>
+        <p>The tool will parse the <code>metadata.json</code> of a configured mod and then publish the mod to the steam workshop.</p>
+        <p>It supports the following features:</p>
+        <ul>
+            <li>Updating the workshop <strong>name</strong> based on the name in the <code>metadata.json</code> </li>
+            <li>Updating the workshop <strong>tags</strong> based on the tags in the <code>metadata.json</code></li>
+            <li>Updating the workshop <strong>description</strong> based on a configured file</li>
+            <li>Updating the workshop <strong>thumbnail</strong> based on the <code>thumbnail.png</code> in the root of the mod folder</li>
+            <li>Adding a <strong>change note</strong> to workshop update based on a configured directory</li>
+        </ul>
+        <h3 id="parameters">Parameters</h3>
+        <ul>
+            <li><strong>Identifier</strong> (REQUIRED) is the steam workshop id of the mod to upload, if kept <code>0</code> it will create the mod on the first upload and replace the id with the newly created one</li>
+            <li><strong>Mod Directory</strong> (REQUIRED) location of the mod, either a relative path from the executable or an absolute path</li>
+            <li><strong>Description File</strong> (OPTIONAL) text file containing the steam description bbcode</li>
+            <li><strong>Change Note Directory</strong> (OPTIONAL) is a directory containing files with version based change notes (see <a href="#adding-workshop-change-notes">change notes</a>)</li>
+        </ul>
+        <h2 id="adding-workshop-change-notes">Adding Workshop Change Notes</h2>
+        <p>The application will try to add change notes if a <strong>Change Note Directory</strong> is defined.</p>
+        <p>It does this by reading the <code>version</code> attribute from the <code>metadata.json</code> and adding a <code>.bbcode</code> at the end.</p>
+        <p>So if a mod has the version <code>1.0.1</code> it will try to find a file called <code>1.0.1.bbcode</code> in the defined change note directory.</p>
+    </div>
+
+
+    <script src="/static/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
