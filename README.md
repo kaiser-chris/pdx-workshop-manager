@@ -33,10 +33,10 @@ The tool will parse the `metadata.json` of either a provided configured mod
 or each configured mod and then publish the mod to the steam workshop.
 
 It supports the following features:
-- Updating the workshop **name** based on the name in the `metadata.json` 
+- Updating the workshop **name** for different languages based on configuration or the `metadata.json`
 - Updating the workshop **tags** based on the tags in the `metadata.json`
-- Updating the workshop **description** based on a configured file
-- Updating the workshop **thumbnail** based on the `thumbnail.png` in the root of the mod folder
+- Updating the workshop **description** for different languages based on configured files
+- Updating the workshop **thumbnail**
 - Adding a **change note** to workshop update based on a configured directory
 
 ## Configuration
@@ -49,7 +49,9 @@ The tool is configured using a json file.
 - **REQUIRED** `mods`a list of mods that can be uploaded
 - **REQUIRED** `id` id of the mod to upload, if kept `0` it will create the mod on the first upload and replace the id with the newly created one
 - **REQUIRED** `directory` location of the mod, either a relative path from the executable or an absolute path
-- **OPTIONAL** `description` file containing the steam description bbcode
+- **OPTIONAL** `thumbnail` thumbnail file located in the mod directory (defaults to `thumbnail.png`)
+- **OPTIONAL** `names` map of steam [api language code](https://partner.steamgames.com/doc/store/localization/languages) to localized mod names (defaults to the name defined in the `metadata.json`)
+- **OPTIONAL** `descriptions` map of steam [api language code](https://partner.steamgames.com/doc/store/localization/languages) to file containing the localized steam description bbcode
 - **OPTIONAL** `change-note-directory` directory containing files with version based change notes (see [change notes](#adding-workshop-change-notes))
 
 ### Example JSON config
@@ -61,7 +63,13 @@ The tool is configured using a json file.
     {
       "id": 0,
       "directory": "/Path/To/Mod",
-      "description": "/Path/To/Bbcode/File/STEAM_PAGE.bbcode",
+      "thumbnail": "thumbnail.png",
+      "names": {
+        "english": "Your mod name"
+      },
+      "descriptions": {
+        "english": "/Path/To/Bbcode/File/STEAM_PAGE.bbcode"
+      },
       "change-note-directory": "/Path/To/Change/Note/Directory"
     }
   ]
@@ -96,7 +104,7 @@ Download the GUI version and after unzipping it simply run the provided executab
 
 The application will open a new browser window with the GUI.
 
-It will allow you to set up mods to be uploaded and do the upload.
+It will allow you to set up mods to be uploaded and do the upload. **Make sure to save your changes before clicking upload.**
 
 ![GUI Screenshot](gui-screenshot.png)
 

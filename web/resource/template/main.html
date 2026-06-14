@@ -21,7 +21,7 @@
                         <a class="nav-link active" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/guide">Guide</a>
+                        <a class="nav-link" href="/guide">Help</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="mod/add">Add Mod</a>
@@ -73,19 +73,19 @@
                     <div class="row mb-3">
                         <label for="mod-identifier{{ $index }}" class="col-sm-2 col-form-label">Identifier</label>
                         <div class="col-sm-10">
-                            <input name="identifier" type="number" class="form-control" id="mod-identifier{{ $index }}" value="{{ $mod.Configuration.Identifier }}">
+                            <input name="identifier" type="number" class="form-control" id="mod-identifier{{ $index }}" value="{{ $mod.Configuration.Identifier }}" data-bs-toggle="tooltip" data-bs-html="true" title="This is the steam workshop id of the mod to upload, if kept <code>0</code> it will create the mod on the first upload and replace the id with the newly created one">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="mod-directory{{ $index }}" class="col-sm-2 col-form-label required-label">Mod Directory</label>
                         <div class="col-sm-10">
-                            <input name="directory" placeholder="REQUIRED: Path to mod directory" required type="text" class="form-control" id="mod-directory{{ $index }}" value="{{ $mod.Configuration.Directory }}">
+                            <input name="directory" placeholder="REQUIRED: Path to mod directory" required type="text" class="form-control" id="mod-directory{{ $index }}" value="{{ $mod.Configuration.Directory }}" data-bs-toggle="tooltip" title="This is the location of the mod, either a relative path from the executable or an absolute path">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="mod-thumbnail{{ $index }}" class="col-sm-2 col-form-label required-label">Steam Thumbnail</label>
                         <div class="col-sm-10">
-                            <input name="thumbnail" placeholder="REQUIRED: Name of thumbnail in mod directory" required type="text" class="form-control" id="mod-thumbnail{{ $index }}" value="{{ $mod.Configuration.Thumbnail }}">
+                            <input name="thumbnail" placeholder="REQUIRED: Name of thumbnail in mod directory" required type="text" class="form-control" id="mod-thumbnail{{ $index }}" value="{{ $mod.Configuration.Thumbnail }}" data-bs-toggle="tooltip" data-bs-html="true" title="This is the filename of the thumbnail in the mod folder (defaults to <code>thumbnail.png</code>)">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -115,7 +115,7 @@
                                     {{ end }}
                                 </div>
                                 <div class="col-sm-8">
-                                    <input name="name-{{ $language }}" placeholder="Localized name" required type="text" class="form-control" id="mod-name{{ $index }}-{{ $language }}" value="{{ $path }}">
+                                    <input name="name-{{ $language }}" placeholder="Localized name" required type="text" class="form-control" id="mod-name{{ $index }}-{{ $language }}" value="{{ $path }}" data-bs-toggle="tooltip" data-bs-html="true" title="This is the localized name for the mod (defaults to the name in <code>metadata.json</code>)">
                                 </div>
                                 <div class="col-sm-2">
                                     <a class="btn btn-danger w-100" href="mod/{{ $index }}/name/remove/{{ $language }}">Remove</a>
@@ -151,7 +151,7 @@
                                     {{ end }}
                                 </div>
                                 <div class="col-sm-8">
-                                    <input name="description-{{ $language }}" placeholder="Path to text file containing the description" required type="text" class="form-control" id="mod-description{{ $index }}-{{ $language }}" value="{{ $path }}">
+                                    <input name="description-{{ $language }}" placeholder="Path to text file containing the description" required type="text" class="form-control" id="mod-description{{ $index }}-{{ $language }}" value="{{ $path }}" data-bs-toggle="tooltip" title="This is the location of a file containing the localized text steam description BBCode">
                                 </div>
                                 <div class="col-sm-2">
                                     <a class="btn btn-danger w-100" href="mod/{{ $index }}/description/remove/{{ $language }}">Remove</a>
@@ -163,7 +163,7 @@
                     <div class="row mb-3">
                         <label for="mod-change-note{{ $index }}" class="col-sm-2 col-form-label">Change Note Directory</label>
                         <div class="col-sm-10">
-                            <input name="change-note" placeholder="OPTIONAL: Change note directory" type="text" class="form-control" id="mod-change-note{{ $index }}" value="{{ $mod.Configuration.ChangeNoteDirectory }}">
+                            <input name="change-note" placeholder="OPTIONAL: Change note directory" type="text" class="form-control" id="mod-change-note{{ $index }}" value="{{ $mod.Configuration.ChangeNoteDirectory }}" data-bs-toggle="tooltip" data-bs-html="true" title="This is a directory containing files with version based change notes (details can be found on the <strong>help</strong> page)">
                         </div>
                     </div>
                     <div class="row justify-content-between">
@@ -212,6 +212,12 @@
         document.querySelectorAll('select[id^="mod-add-description"]').forEach(updateLanguageButton);
     </script>
     <script src="static/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
     <script>
         document.querySelectorAll('.spinner-link').forEach(link => {
             link.addEventListener('click', function(e) {

@@ -4,7 +4,13 @@
 		{
 			"id": 0,
 			"directory": "/Path/To/Mod",
-			"description": "/Path/To/Bbcode/File/STEAM_PAGE.bbcode",
+			"thumbnail": "thumbnail.png",
+			"names": {
+				"english": "English mod name"
+			},
+			"descriptions": {
+				"english": "/Path/To/Bbcode/File/STEAM_PAGE.bbcode"
+			},
 			"change-note-directory": "/Path/To/Change/Note/Directory"
 		}
 	]
