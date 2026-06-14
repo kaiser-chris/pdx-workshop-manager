@@ -232,6 +232,13 @@ func addModName(writer http.ResponseWriter, request *http.Request) {
 
 	window.Mods[index].Configuration.Names[language] = ""
 
+	err = window.Configuration.Save()
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not save configuration: %v", err), MessageError)
+	} else {
+		window.SendMessage(fmt.Sprintf("Updated mod successfully: %d", window.Configuration.Mods[index].Identifier), MessageSuccess)
+	}
+
 	http.Redirect(writer, request, "/", http.StatusSeeOther)
 }
 
@@ -258,6 +265,13 @@ func removeModName(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	delete(window.Mods[index].Configuration.Names, steam.ApiLanguage(language))
+
+	err = window.Configuration.Save()
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not save configuration: %v", err), MessageError)
+	} else {
+		window.SendMessage(fmt.Sprintf("Updated mod successfully: %d", window.Configuration.Mods[index].Identifier), MessageSuccess)
+	}
 
 	http.Redirect(writer, request, "/", http.StatusSeeOther)
 }
@@ -293,6 +307,13 @@ func addModDescription(writer http.ResponseWriter, request *http.Request) {
 
 	window.Mods[index].Configuration.Descriptions[language] = ""
 
+	err = window.Configuration.Save()
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not save configuration: %v", err), MessageError)
+	} else {
+		window.SendMessage(fmt.Sprintf("Updated mod successfully: %d", window.Configuration.Mods[index].Identifier), MessageSuccess)
+	}
+
 	http.Redirect(writer, request, "/", http.StatusSeeOther)
 }
 
@@ -319,6 +340,13 @@ func removeModDescription(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	delete(window.Mods[index].Configuration.Descriptions, steam.ApiLanguage(language))
+
+	err = window.Configuration.Save()
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not save configuration: %v", err), MessageError)
+	} else {
+		window.SendMessage(fmt.Sprintf("Updated mod successfully: %d", window.Configuration.Mods[index].Identifier), MessageSuccess)
+	}
 
 	http.Redirect(writer, request, "/", http.StatusSeeOther)
 }
@@ -408,8 +436,19 @@ func updateMod(writer http.ResponseWriter, request *http.Request) {
 	identifierValue := request.FormValue("identifier")
 	thumbnail := request.FormValue("thumbnail")
 	directory := request.FormValue("directory")
-	descriptionFile := request.FormValue("description")
 	changeNoteDirectory := request.FormValue("change-note")
+
+	for language := range steam.ApiLanguages {
+		description := request.FormValue(fmt.Sprintf("description-%v", language))
+		if description != "" {
+			window.Configuration.Mods[index].Descriptions[language] = description
+		}
+		name := request.FormValue(fmt.Sprintf("name-%v", language))
+		if name != "" {
+			window.Configuration.Mods[index].Names[language] = name
+		}
+	}
+
 	identifier, err := strconv.ParseUint(identifierValue, 10, 64)
 	if err != nil {
 		window.SendMessage(fmt.Sprintf("Could not parse mod identifier: %v", err), MessageError)
@@ -420,7 +459,6 @@ func updateMod(writer http.ResponseWriter, request *http.Request) {
 	window.Configuration.Mods[index].Identifier = identifier
 	window.Configuration.Mods[index].Thumbnail = thumbnail
 	window.Configuration.Mods[index].Directory = directory
-	window.Configuration.Mods[index].Descriptions[steam.English] = descriptionFile
 	window.Configuration.Mods[index].ChangeNoteDirectory = changeNoteDirectory
 
 	err = window.Configuration.Save()
