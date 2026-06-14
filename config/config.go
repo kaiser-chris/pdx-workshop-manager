@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"bahmut.de/pdx-workshop-manager/logging"
+	"bahmut.de/pdx-workshop-manager/steam"
 )
 
 const (
@@ -18,11 +19,28 @@ type ApplicationConfig struct {
 	Mods           []*ModConfig `json:"mods"`
 }
 
+type ApplicationConfigJson struct {
+	Game uint             `json:"game"`
+	Mods []*ModConfigJson `json:"mods"`
+}
+
 type ModConfig struct {
-	Identifier          uint64 `json:"id"`
-	Directory           string `json:"directory"`
-	Description         string `json:"description"`
-	ChangeNoteDirectory string `json:"change-note-directory"`
+	Identifier          uint64                       `json:"id"`
+	Directory           string                       `json:"directory"`
+	Thumbnail           string                       `json:"thumbnail"`
+	Names               map[steam.ApiLanguage]string `json:"names"`
+	Descriptions        map[steam.ApiLanguage]string `json:"descriptions"`
+	ChangeNoteDirectory string                       `json:"change-note-directory"`
+}
+
+type ModConfigJson struct {
+	Identifier          uint64                       `json:"id"`
+	Directory           string                       `json:"directory"`
+	Thumbnail           string                       `json:"thumbnail"`
+	Names               map[steam.ApiLanguage]string `json:"names"`
+	Descriptions        map[steam.ApiLanguage]string `json:"descriptions"`
+	Description         string                       `json:"description"`
+	ChangeNoteDirectory string                       `json:"change-note-directory"`
 }
 
 func LoadConfig(path string) (*ApplicationConfig, error) {
@@ -40,15 +58,38 @@ func LoadConfig(path string) (*ApplicationConfig, error) {
 
 	// Decode json
 	decoder := json.NewDecoder(file)
-	var config ApplicationConfig
-	err = decoder.Decode(&config)
+	var configJson ApplicationConfigJson
+	err = decoder.Decode(&configJson)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
-	config.configFilePath = path
+	config := &ApplicationConfig{
+		configFilePath: path,
+		Game:           configJson.Game,
+		Mods:           make([]*ModConfig, len(configJson.Mods)),
+	}
 
-	return &config, nil
+	for i, configJson := range configJson.Mods {
+		config.Mods[i] = &ModConfig{
+			Identifier:          configJson.Identifier,
+			Directory:           configJson.Directory,
+			Thumbnail:           configJson.Thumbnail,
+			Names:               configJson.Names,
+			Descriptions:        configJson.Descriptions,
+			ChangeNoteDirectory: configJson.ChangeNoteDirectory,
+		}
+
+		if configJson.Thumbnail == "" {
+			config.Mods[i].Thumbnail = "thumbnail.png"
+		}
+
+		if configJson.Description != "" {
+			config.Mods[i].Descriptions[steam.English] = configJson.Description
+		}
+	}
+
+	return config, nil
 }
 
 func InitializeConfig(configFilePath string, game uint) (*ApplicationConfig, error) {

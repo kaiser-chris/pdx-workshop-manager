@@ -17,12 +17,13 @@ import (
 )
 
 type ModUploadData struct {
-	Game        uint
-	Description string
-	ChangeNote  string
-	Thumbnail   string
-	Metadata    *ModMetadata
-	Config      *config.ModConfig
+	Game         uint
+	Names        map[steam.ApiLanguage]string
+	Descriptions map[steam.ApiLanguage]string
+	ChangeNote   string
+	Thumbnail    string
+	Metadata     *ModMetadata
+	Config       *config.ModConfig
 }
 
 type ModMetadata struct {
@@ -80,6 +81,8 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 	uploadData := &ModUploadData{}
 	uploadData.Config = config
 	uploadData.Game = game
+	uploadData.Names = make(map[steam.ApiLanguage]string)
+	uploadData.Descriptions = make(map[steam.ApiLanguage]string)
 
 	// Read metadata file
 	metadataPath := filepath.Join(config.Directory, ".metadata", "metadata.json")
@@ -115,17 +118,26 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 	}
 
 	uploadData.Metadata = &metadata
-	uploadData.Thumbnail = filepath.Join(config.Directory, "thumbnail.png")
+	uploadData.Thumbnail = filepath.Join(config.Directory, config.Thumbnail)
 	if _, err := os.Stat(uploadData.Thumbnail); errors.Is(err, os.ErrNotExist) {
-		return nil, fmt.Errorf("failed to find steam thumbnail.png in the mod root: %s", uploadData.Thumbnail)
+		return nil, fmt.Errorf("failed to find steam thumbnail in the mod root: %s", uploadData.Thumbnail)
 	}
 
-	if config.Description != "" {
-		content, err := os.ReadFile(config.Description)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read description file %s: %w", config.Description, err)
+	if config.Descriptions != nil && len(config.Descriptions) > 0 {
+		for language, descFile := range config.Descriptions {
+			content, err := os.ReadFile(descFile)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read '%s' description file %s: %w", language, descFile, err)
+			}
+			uploadData.Descriptions[language] = string(content)
 		}
-		uploadData.Description = string(content)
+	}
+
+	uploadData.Names[steam.English] = metadata.Name
+	if config.Names != nil && len(config.Names) > 0 {
+		for language, name := range config.Names {
+			uploadData.Names[language] = name
+		}
 	}
 
 	if config.ChangeNoteDirectory != "" {
@@ -179,11 +191,17 @@ func createMod(game uint) (uint64, error) {
 }
 
 func uploadModData(data *ModUploadData) error {
-	var steamError = false
-
 	handle := steam.SteamUGC().StartItemUpdate(data.Game, data.Config.Identifier)
 
-	steam.SteamUGC().SetItemTitle(handle, data.Metadata.Name)
+	if data.Names != nil && data.Names[steam.English] != "" {
+		steam.SteamUGC().SetItemTitle(handle, data.Names[steam.English])
+	} else {
+		steam.SteamUGC().SetItemTitle(handle, data.Metadata.Name)
+	}
+
+	if data.Descriptions != nil && data.Descriptions[steam.English] != "" {
+		steam.SteamUGC().SetItemDescription(handle, data.Descriptions[steam.English])
+	}
 
 	contentPath, err := filepath.Abs(data.Config.Directory)
 	if err != nil {
@@ -202,12 +220,55 @@ func uploadModData(data *ModUploadData) error {
 		steam.SteamUGC().SetItemTagsExtension(handle, tagArray)
 	}
 
-	if data.Description != "" {
-		steam.SteamUGC().SetItemDescription(handle, data.Description)
+	steam.SteamUGC().SetItemUpdateLanguage(handle, steam.English.GetString())
+
+	err = uploadUpdate(handle, data.ChangeNote)
+	if err != nil {
+		return err
 	}
 
+	languages := map[steam.ApiLanguage]bool{}
+	for key := range data.Names {
+		languages[key] = true
+	}
+	for key := range data.Descriptions {
+		languages[key] = true
+	}
+
+	for language := range languages {
+		if language == steam.English {
+			continue
+		}
+		err = uploadModMetadata(data, language)
+		if err != nil {
+			return fmt.Errorf("failed to update '%s' name or description: %w", language, err)
+		}
+	}
+
+	return nil
+}
+
+func uploadModMetadata(data *ModUploadData, language steam.ApiLanguage) error {
+	handle := steam.SteamUGC().StartItemUpdate(data.Game, data.Config.Identifier)
+
+	if data.Names != nil && data.Names[language] != "" {
+		steam.SteamUGC().SetItemTitle(handle, data.Names[language])
+	}
+
+	if data.Descriptions != nil && data.Descriptions[language] != "" {
+		steam.SteamUGC().SetItemDescription(handle, data.Descriptions[language])
+	}
+
+	steam.SteamUGC().SetItemUpdateLanguage(handle, language.GetString())
+
+	return uploadUpdate(handle, "")
+}
+
+func uploadUpdate(handle uint64, changeNote string) error {
+	var steamError = false
 	result := steam.NewSubmitItemUpdateResult_t()
-	apiCall := steam.SteamUGC().SubmitItemUpdate(handle, data.ChangeNote)
+	apiCall := steam.SteamUGC().SubmitItemUpdate(handle, changeNote)
+
 	for {
 		if steam.SteamUtils().IsAPICallCompleted(apiCall, &steamError) {
 			steam.SteamUtils().GetAPICallResult(

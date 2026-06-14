@@ -34,3 +34,4 @@ go.work
 /sdk
 /dist
 /manager-config.json
+/steam_appid.txt
