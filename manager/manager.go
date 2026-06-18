@@ -33,15 +33,12 @@ type ModMetadata struct {
 }
 
 func Init(appConfig *config.ApplicationConfig) error {
-	executablePath, err := os.Executable()
-	if err != nil {
-		return err
-	}
-	if os.WriteFile(
-		filepath.Join(filepath.Dir(executablePath), "steam_appid.txt"),
+	err := os.WriteFile(
+		"steam_appid.txt",
 		[]byte(strconv.FormatUint(uint64(appConfig.Game), 10)),
 		0644,
-	) != nil {
+	)
+	if err != nil {
 		return err
 	}
 
