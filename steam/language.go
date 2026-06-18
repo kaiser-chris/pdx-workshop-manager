@@ -19,7 +19,7 @@ const (
 	Indonesian ApiLanguage = "indonesian"
 	Italian    ApiLanguage = "italian"
 	Japanese   ApiLanguage = "japanese"
-	Korean     ApiLanguage = "korean"
+	Koreana    ApiLanguage = "koreana"
 	Malay      ApiLanguage = "malay"
 	Norwegian  ApiLanguage = "norwegian"
 	Polish     ApiLanguage = "polish"
@@ -57,7 +57,7 @@ var ApiLanguages = map[ApiLanguage]string{
 	Indonesian: "Indonesian",
 	Italian:    "Italian",
 	Japanese:   "Japanese",
-	Korean:     "Korean",
+	Koreana:    "Korean",
 	Malay:      "Malay",
 	Norwegian:  "Norwegian",
 	Polish:     "Polish",
