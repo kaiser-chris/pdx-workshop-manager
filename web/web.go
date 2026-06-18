@@ -101,6 +101,8 @@ func Run() {
 	http.HandleFunc("GET /mod/{index}/name/remove/{language}", removeModName)
 	http.HandleFunc("GET /mod/{index}/description/add/{language}", addModDescription)
 	http.HandleFunc("GET /mod/{index}/description/remove/{language}", removeModDescription)
+	http.HandleFunc("GET /mod/{index}/change-note/add/{language}", addModChangeNote)
+	http.HandleFunc("GET /mod/{index}/change-note/remove/{language}", removeModChangeNote)
 
 	port, err := getFreePort()
 	if err != nil {
@@ -181,12 +183,12 @@ func changeGame(writer http.ResponseWriter, request *http.Request) {
 
 func addMod(writer http.ResponseWriter, request *http.Request) {
 	mod := &config.ModConfig{
-		Identifier:          0,
-		Directory:           "",
-		Thumbnail:           "thumbnail.png",
-		Names:               make(map[steam.ApiLanguage]string),
-		Descriptions:        make(map[steam.ApiLanguage]string),
-		ChangeNoteDirectory: "",
+		Identifier:            0,
+		Directory:             "",
+		Thumbnail:             "thumbnail.png",
+		Names:                 make(map[steam.ApiLanguage]string),
+		Descriptions:          make(map[steam.ApiLanguage]string),
+		ChangeNoteDirectories: make(map[steam.ApiLanguage]string),
 	}
 
 	window.Configuration.Mods = append(window.Configuration.Mods, mod)
@@ -351,6 +353,81 @@ func removeModDescription(writer http.ResponseWriter, request *http.Request) {
 	http.Redirect(writer, request, "/", http.StatusSeeOther)
 }
 
+func addModChangeNote(writer http.ResponseWriter, request *http.Request) {
+	indexParameter := request.PathValue("index")
+	languageParameter := request.PathValue("language")
+	language := steam.ApiLanguage(languageParameter)
+	index, err := strconv.Atoi(indexParameter)
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not parse mod index: %v", err), MessageError)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	if index < 0 || index >= len(window.Configuration.Mods) {
+		window.SendMessage(fmt.Sprintf("Could not add change note language: %v", errors.New("index out of bound")), MessageError)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	if err := request.ParseForm(); err != nil {
+		window.SendMessage(fmt.Sprintf("Could not add change note language: %v", err), MessageError)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	if _, ok := window.Mods[index].Configuration.ChangeNoteDirectories[language]; ok {
+		window.SendMessage(fmt.Sprintf("Change note language already exists: %s", steam.ApiLanguages[language]), MessageWarning)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	window.Mods[index].Configuration.ChangeNoteDirectories[language] = ""
+
+	err = window.Configuration.Save()
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not save configuration: %v", err), MessageError)
+	} else {
+		window.SendMessage(fmt.Sprintf("Updated mod successfully: %d", window.Configuration.Mods[index].Identifier), MessageSuccess)
+	}
+
+	http.Redirect(writer, request, "/", http.StatusSeeOther)
+}
+
+func removeModChangeNote(writer http.ResponseWriter, request *http.Request) {
+	language := request.PathValue("language")
+	indexParameter := request.PathValue("index")
+	index, err := strconv.Atoi(indexParameter)
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not parse mod index: %v", err), MessageError)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	if index < 0 || index >= len(window.Configuration.Mods) {
+		window.SendMessage(fmt.Sprintf("Could not remove mod change note: %v", errors.New("index out of bound")), MessageError)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	if err := request.ParseForm(); err != nil {
+		window.SendMessage(fmt.Sprintf("Could not update mod: %v", err), MessageError)
+		http.Redirect(writer, request, "/", http.StatusSeeOther)
+		return
+	}
+
+	delete(window.Mods[index].Configuration.ChangeNoteDirectories, steam.ApiLanguage(language))
+
+	err = window.Configuration.Save()
+	if err != nil {
+		window.SendMessage(fmt.Sprintf("Could not save configuration: %v", err), MessageError)
+	} else {
+		window.SendMessage(fmt.Sprintf("Updated mod successfully: %d", window.Configuration.Mods[index].Identifier), MessageSuccess)
+	}
+
+	http.Redirect(writer, request, "/", http.StatusSeeOther)
+}
+
 func removeMod(writer http.ResponseWriter, request *http.Request) {
 	indexParameter := request.PathValue("index")
 	index, err := strconv.Atoi(indexParameter)
@@ -436,7 +513,6 @@ func updateMod(writer http.ResponseWriter, request *http.Request) {
 	identifierValue := request.FormValue("identifier")
 	thumbnail := request.FormValue("thumbnail")
 	directory := request.FormValue("directory")
-	changeNoteDirectory := request.FormValue("change-note")
 
 	for language := range steam.ApiLanguages {
 		description := request.FormValue(fmt.Sprintf("description-%v", language))
@@ -446,6 +522,10 @@ func updateMod(writer http.ResponseWriter, request *http.Request) {
 		name := request.FormValue(fmt.Sprintf("name-%v", language))
 		if name != "" {
 			window.Configuration.Mods[index].Names[language] = name
+		}
+		changeNote := request.FormValue(fmt.Sprintf("change-note-%v", language))
+		if changeNote != "" {
+			window.Configuration.Mods[index].ChangeNoteDirectories[language] = changeNote
 		}
 	}
 
@@ -459,7 +539,6 @@ func updateMod(writer http.ResponseWriter, request *http.Request) {
 	window.Configuration.Mods[index].Identifier = identifier
 	window.Configuration.Mods[index].Thumbnail = thumbnail
 	window.Configuration.Mods[index].Directory = directory
-	window.Configuration.Mods[index].ChangeNoteDirectory = changeNoteDirectory
 
 	err = window.Configuration.Save()
 	if err != nil {

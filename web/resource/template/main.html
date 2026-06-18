@@ -138,7 +138,7 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-10">
-                                    <a id="mod-add-description{{ $index }}-button" class="btn btn-success w-100" data-base-url="mod/{{ $index }}/description/add/" href="mod/{{ $index }}/name/add/arabic">Add new localized description file</a>
+                                    <a id="mod-add-description{{ $index }}-button" class="btn btn-success w-100" data-base-url="mod/{{ $index }}/description/add/" href="mod/{{ $index }}/description/add/arabic">Add new localized description file</a>
                                 </div>
                             </div>
                             {{ range $language, $path := $mod.Configuration.Descriptions }}
@@ -161,9 +161,37 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="mod-change-note{{ $index }}" class="col-sm-2 col-form-label">Change Note Directory</label>
+                        <div class="col-sm-2">
+                            <label class="col-form-label">Localized Change Note Directories</label>
+                        </div>
                         <div class="col-sm-10">
-                            <input name="change-note" placeholder="OPTIONAL: Change note directory" type="text" class="form-control" id="mod-change-note{{ $index }}" value="{{ $mod.Configuration.ChangeNoteDirectory }}" data-bs-toggle="tooltip" data-bs-html="true" title="This is a directory containing files with version based change notes (details can be found on the <strong>help</strong> page)">
+                            <div class="row mb-3">
+                                <div class="col-sm-2">
+                                    <select id="mod-add-change-note{{ $index }}" class="form-select"  data-bs-toggle="tooltip" data-bs-html="true" title="At the moment only English is supported.">
+                                        <option value="english">English</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-10">
+                                    <a id="mod-add-change-note{{ $index }}-button" class="btn btn-success w-100" data-base-url="mod/{{ $index }}/change-note/add/" href="mod/{{ $index }}/change-note/add/arabic">Add new localized change note directory</a>
+                                </div>
+                            </div>
+                            {{ range $language, $path := $mod.Configuration.ChangeNoteDirectories }}
+                            <div class="row mb-3">
+                                <div class="col-sm-2">
+                                    {{ range $languageKey, $languageName := $.Languages }}
+                                    {{if eq $languageKey $language }}
+                                    <label for="mod-change-note{{ $index }}-{{ $language }}" class="col-form-label">{{ $languageName }}</label>
+                                    {{end}}
+                                    {{ end }}
+                                </div>
+                                <div class="col-sm-8">
+                                    <input name="change-note-{{ $language }}" placeholder="Change note directory" required type="text" class="form-control" id="mod-change-note{{ $index }}-{{ $language }}" value="{{ $path }}" data-bs-toggle="tooltip" data-bs-html="true" title="This is a directory containing files with version based change notes (details can be found on the <strong>help</strong> page)">
+                                </div>
+                                <div class="col-sm-2">
+                                    <a class="btn btn-danger w-100" href="mod/{{ $index }}/change-note/remove/{{ $language }}">Remove</a>
+                                </div>
+                            </div>
+                            {{ end }}
                         </div>
                     </div>
                     <div class="row justify-content-between">
@@ -210,6 +238,14 @@
         });
 
         document.querySelectorAll('select[id^="mod-add-description"]').forEach(updateLanguageButton);
+
+        document.addEventListener('change', function (event) {
+            if (event.target.matches('select[id^="mod-add-change-note"]')) {
+                updateLanguageButton(event.target);
+            }
+        });
+
+        document.querySelectorAll('select[id^="mod-add-change-note"]').forEach(updateLanguageButton);
     </script>
     <script src="static/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script>
@@ -236,7 +272,7 @@
                 // Parse href and open after delay
                 const url = this.getAttribute('href');
                 setTimeout(() => {
-                    window.open(url, '_blank');
+                    window.open(url);
                 }, 1000);
             });
         });

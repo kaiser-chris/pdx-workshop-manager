@@ -109,3 +109,14 @@ var ResultDescription = map[EResult]string{
 	K_EResultInsufficientFunds:                       "user doesn't have enough wallet funds to complete the action",
 	K_EResultTooManyPending:                          "There are too many of this thing pending already",
 }
+
+var UgcItemUpdateDescription = map[EResult]string{
+	K_EResultOK:            "The operation completed successfully.",
+	K_EResultFail:          "Generic failure.",
+	K_EResultInvalidParam:  "Either the provided app ID is invalid or doesn't match the consumer app ID of the item or, you have not enabled ISteamUGC for the provided app ID on the Steam Workshop Configuration App Admin page.\nThe preview file is smaller than 16 bytes.",
+	K_EResultAccessDenied:  "The user doesn't own a license for the provided app ID.",
+	K_EResultFileNotFound:  "Failed to get the workshop info for the item or failed to read the preview file.",
+	K_EResultLockingFailed: "Failed to acquire UGC Lock.",
+	K_EResultFileNotFound:  "The provided content folder is not valid.",
+	K_EResultLimitExceeded: "The preview image is too large, it must be less than 1 Megabyte; or there is not enough space available on the user's Steam Cloud.",
+}

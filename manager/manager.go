@@ -20,7 +20,7 @@ type ModUploadData struct {
 	Game         uint
 	Names        map[steam.ApiLanguage]string
 	Descriptions map[steam.ApiLanguage]string
-	ChangeNote   string
+	ChangeNotes  map[steam.ApiLanguage]string
 	Thumbnail    string
 	Metadata     *ModMetadata
 	Config       *config.ModConfig
@@ -80,6 +80,7 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 	uploadData.Game = game
 	uploadData.Names = make(map[steam.ApiLanguage]string)
 	uploadData.Descriptions = make(map[steam.ApiLanguage]string)
+	uploadData.ChangeNotes = make(map[steam.ApiLanguage]string)
 
 	// Read metadata file
 	metadataPath := filepath.Join(config.Directory, ".metadata", "metadata.json")
@@ -137,13 +138,25 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 		}
 	}
 
-	if config.ChangeNoteDirectory != "" {
-		changeNotePath := filepath.Join(config.ChangeNoteDirectory, metadata.Version+".bbcode")
-		content, err := os.ReadFile(changeNotePath)
-		if err != nil {
-			logging.Warnf("failed to read changeNote file %s: %v", changeNotePath, err)
-		} else {
-			uploadData.ChangeNote = string(content)
+	if config.Descriptions != nil && len(config.Descriptions) > 0 {
+		for language, descFile := range config.Descriptions {
+			content, err := os.ReadFile(descFile)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read '%s' description file %s: %w", language, descFile, err)
+			}
+			uploadData.Descriptions[language] = string(content)
+		}
+	}
+
+	if config.ChangeNoteDirectories != nil && len(config.ChangeNoteDirectories) > 0 {
+		for language, descFile := range config.ChangeNoteDirectories {
+			changeNotePath := filepath.Join(descFile, metadata.Version+".bbcode")
+			content, err := os.ReadFile(changeNotePath)
+			if err != nil {
+				logging.Warnf("failed to read '%s' changeNote file %s: %v", language, changeNotePath, err)
+			} else {
+				uploadData.ChangeNotes[language] = string(content)
+			}
 		}
 	}
 
@@ -220,7 +233,7 @@ func uploadModData(data *ModUploadData) error {
 
 	steam.SteamUGC().SetItemUpdateLanguage(handle, steam.English.GetString())
 
-	err = uploadUpdate(handle, data.ChangeNote)
+	err = uploadUpdate(handle, data.ChangeNotes[steam.English])
 	if err != nil {
 		return err
 	}
@@ -259,7 +272,7 @@ func uploadModMetadata(data *ModUploadData, language steam.ApiLanguage) error {
 
 	steam.SteamUGC().SetItemUpdateLanguage(handle, language.GetString())
 
-	return uploadUpdate(handle, "")
+	return uploadUpdate(handle, data.ChangeNotes[language])
 }
 
 func uploadUpdate(handle uint64, changeNote string) error {
@@ -282,7 +295,11 @@ func uploadUpdate(handle uint64, changeNote string) error {
 	}
 
 	if result.GetM_eResult() != steam.K_EResultOK {
-		return fmt.Errorf("steam API call failed: %s", steam.ResultDescription[result.GetM_eResult()])
+		errorMessage := steam.UgcItemUpdateDescription[result.GetM_eResult()]
+		if errorMessage == "" {
+			errorMessage = steam.ResultDescription[result.GetM_eResult()]
+		}
+		return fmt.Errorf("steam API call failed: %s", errorMessage)
 	}
 
 	if steamError {

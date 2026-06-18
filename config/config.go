@@ -25,22 +25,23 @@ type ApplicationConfigJson struct {
 }
 
 type ModConfig struct {
-	Identifier          uint64                       `json:"id"`
-	Directory           string                       `json:"directory"`
-	Thumbnail           string                       `json:"thumbnail"`
-	Names               map[steam.ApiLanguage]string `json:"names"`
-	Descriptions        map[steam.ApiLanguage]string `json:"descriptions"`
-	ChangeNoteDirectory string                       `json:"change-note-directory"`
+	Identifier            uint64                       `json:"id"`
+	Directory             string                       `json:"directory"`
+	Thumbnail             string                       `json:"thumbnail"`
+	Names                 map[steam.ApiLanguage]string `json:"names"`
+	Descriptions          map[steam.ApiLanguage]string `json:"descriptions"`
+	ChangeNoteDirectories map[steam.ApiLanguage]string `json:"change-note-directories"`
 }
 
 type ModConfigJson struct {
-	Identifier          uint64                       `json:"id"`
-	Directory           string                       `json:"directory"`
-	Thumbnail           string                       `json:"thumbnail"`
-	Names               map[steam.ApiLanguage]string `json:"names"`
-	Descriptions        map[steam.ApiLanguage]string `json:"descriptions"`
-	Description         string                       `json:"description"`
-	ChangeNoteDirectory string                       `json:"change-note-directory"`
+	Identifier            uint64                       `json:"id"`
+	Directory             string                       `json:"directory"`
+	Thumbnail             string                       `json:"thumbnail"`
+	Names                 map[steam.ApiLanguage]string `json:"names"`
+	Descriptions          map[steam.ApiLanguage]string `json:"descriptions"`
+	Description           string                       `json:"description"`
+	ChangeNoteDirectories map[steam.ApiLanguage]string `json:"change-note-directories"`
+	ChangeNoteDirectory   string                       `json:"change-note-directory"`
 }
 
 func LoadConfig(path string) (*ApplicationConfig, error) {
@@ -72,12 +73,24 @@ func LoadConfig(path string) (*ApplicationConfig, error) {
 
 	for i, configJson := range configJson.Mods {
 		config.Mods[i] = &ModConfig{
-			Identifier:          configJson.Identifier,
-			Directory:           configJson.Directory,
-			Thumbnail:           configJson.Thumbnail,
-			Names:               configJson.Names,
-			Descriptions:        configJson.Descriptions,
-			ChangeNoteDirectory: configJson.ChangeNoteDirectory,
+			Identifier:            configJson.Identifier,
+			Directory:             configJson.Directory,
+			Thumbnail:             configJson.Thumbnail,
+			Names:                 configJson.Names,
+			Descriptions:          configJson.Descriptions,
+			ChangeNoteDirectories: configJson.ChangeNoteDirectories,
+		}
+
+		if configJson.Names == nil {
+			config.Mods[i].Names = make(map[steam.ApiLanguage]string)
+		}
+
+		if configJson.Descriptions == nil {
+			config.Mods[i].Descriptions = make(map[steam.ApiLanguage]string)
+		}
+
+		if configJson.ChangeNoteDirectories == nil {
+			config.Mods[i].ChangeNoteDirectories = make(map[steam.ApiLanguage]string)
 		}
 
 		if configJson.Thumbnail == "" {
@@ -86,6 +99,10 @@ func LoadConfig(path string) (*ApplicationConfig, error) {
 
 		if configJson.Description != "" {
 			config.Mods[i].Descriptions[steam.English] = configJson.Description
+		}
+
+		if configJson.ChangeNoteDirectory != "" {
+			config.Mods[i].ChangeNoteDirectories[steam.English] = configJson.ChangeNoteDirectory
 		}
 	}
 
