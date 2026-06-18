@@ -145,8 +145,9 @@ func createModUploadData(config *config.ModConfig, game uint) (*ModUploadData, e
 		content, err := os.ReadFile(changeNotePath)
 		if err != nil {
 			logging.Warnf("failed to read changeNote file %s: %v", changeNotePath, err)
+		} else {
+			uploadData.ChangeNote = string(content)
 		}
-		uploadData.ChangeNote = string(content)
 	}
 
 	return uploadData, nil
